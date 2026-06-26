@@ -1,0 +1,42 @@
+# Environment
+.env
+*.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Django
+staticfiles/
+media/
+db.sqlite3
+
+# Node
+node_modules/
+dist/
+build/
+.wrangler/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Claude Code
+.claude/

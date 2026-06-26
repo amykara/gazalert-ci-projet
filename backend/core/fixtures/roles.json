@@ -1,0 +1,4 @@
+[
+  {"model": "core.role", "pk": 1, "fields": {"nom": "gestionnaire", "peut_voir_historique": true, "peut_voir_tableau_bord": true, "peut_modifier_contacts": true, "peut_modifier_foyer": true, "peut_gerer_membres": false}},
+  {"model": "core.role", "pk": 2, "fields": {"nom": "membre", "peut_voir_historique": true, "peut_voir_tableau_bord": true, "peut_modifier_contacts": false, "peut_modifier_foyer": false, "peut_gerer_membres": false}}
+]

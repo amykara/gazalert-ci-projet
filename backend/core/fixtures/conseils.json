@@ -1,0 +1,8 @@
+[
+  {"model": "core.conseilsecurite", "pk": 1, "fields": {"titre": "Ouvrez imm\u00e9diatement", "contenu": "Ouvrez toutes les fen\u00eatres et portes pour a\u00e9rer le logement.", "icone": "wind", "ordre": 1, "est_actif": true}},
+  {"model": "core.conseilsecurite", "pk": 2, "fields": {"titre": "Aucun interrupteur", "contenu": "N'allumez aucun interrupteur \u00e9lectrique.", "icone": "lightning", "ordre": 2, "est_actif": true}},
+  {"model": "core.conseilsecurite", "pk": 3, "fields": {"titre": "\u00c9vacuez sans attendre", "contenu": "Sortez du b\u00e2timent imm\u00e9diatement.", "icone": "door-open", "ordre": 3, "est_actif": true}},
+  {"model": "core.conseilsecurite", "pk": 4, "fields": {"titre": "Appelez les secours", "contenu": "Composez le 180 depuis l'ext\u00e9rieur.", "icone": "phone-call", "ordre": 4, "est_actif": true}},
+  {"model": "core.conseilsecurite", "pk": 5, "fields": {"titre": "Pas de t\u00e9l\u00e9phone \u00e0 l'int\u00e9rieur", "contenu": "N'utilisez jamais votre t\u00e9l\u00e9phone \u00e0 l'int\u00e9rieur.", "icone": "phone-slash", "ordre": 5, "est_actif": true}},
+  {"model": "core.conseilsecurite", "pk": 6, "fields": {"titre": "Attendez le feu vert", "contenu": "Ne r\u00e9int\u00e9grez le logement qu'apr\u00e8s accord des secours.", "icone": "shield-check", "ordre": 6, "est_actif": true}}
+]
