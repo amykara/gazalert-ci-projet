@@ -134,5 +134,6 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 EMAIL_TIMEOUT = 10
 DEFAULT_FROM_EMAIL = f'GazAlert CI <{config("EMAIL_HOST_USER", default="")}>'
+RESEND_API_KEY = config('RESEND_API_KEY', default='')
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:8080')
 AUTH_USER_MODEL = 'core.Utilisateur'

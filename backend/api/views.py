@@ -1,7 +1,7 @@
 import uuid
 from datetime import timedelta
 from django.conf import settings
-from django.core.mail import send_mail
+import resend
 from rest_framework import viewsets, status, generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -83,13 +83,13 @@ def inscription(request):
         )
         lien = f"{settings.FRONTEND_URL}/verify-email?token={token_verif}"
         try:
-            send_mail(
-                subject='GazAlert CI — Vérifiez votre adresse email',
-                message=f'Bonjour {user.nom},\n\nBienvenue sur GazAlert CI !\n\nCliquez sur ce lien pour vérifier votre compte :\n{lien}\n\nCe lien expire dans 24 heures.\n\nL\'équipe GazAlert CI',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[user.email],
-                fail_silently=True,
-            )
+            resend.api_key = settings.RESEND_API_KEY
+            resend.Emails.send({
+                "from": "GazAlert CI <onboarding@resend.dev>",
+                "to": [user.email],
+                "subject": "GazAlert CI — Vérifiez votre adresse email",
+                "html": f"<p>Bonjour {user.nom},</p><p>Bienvenue sur GazAlert CI !</p><p>Cliquez sur ce lien pour vérifier votre compte :<br><a href='{lien}'>{lien}</a></p><p>Ce lien expire dans 24 heures.</p><p>L'équipe GazAlert CI</p>",
+            })
         except Exception:
             pass
 
@@ -489,16 +489,16 @@ def envoyer_verification_email(request):
 
     lien = f"{settings.FRONTEND_URL}/verify-email?token={token}"
     try:
-        send_mail(
-            subject='GazAlert CI — Vérifiez votre adresse email',
-            message=f'Bonjour {request.user.nom},\n\nCliquez sur ce lien pour vérifier votre compte :\n{lien}\n\nCe lien expire dans 24 heures.\n\nL\'équipe GazAlert CI',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[request.user.email],
-            fail_silently=False,
-        )
+        resend.api_key = settings.RESEND_API_KEY
+        resend.Emails.send({
+            "from": "GazAlert CI <onboarding@resend.dev>",
+            "to": [request.user.email],
+            "subject": "GazAlert CI — Vérifiez votre adresse email",
+            "html": f"<p>Bonjour {request.user.nom},</p><p>Cliquez sur ce lien pour vérifier votre compte :<br><a href='{lien}'>{lien}</a></p><p>Ce lien expire dans 24 heures.</p><p>L'équipe GazAlert CI</p>",
+        })
         return Response({'message': 'Email envoyé avec succès.'})
-    except Exception as e:
-        return Response({'detail': f'Erreur lors de l\'envoi de l\'email: {str(e)}'}, status=500)
+    except Exception:
+        return Response({'detail': 'Erreur lors de l\'envoi de l\'email. Veuillez réessayer.'}, status=500)
 
 
 # ─── VÉRIFIER EMAIL ───────────────────────────────────────────────────────────
@@ -553,13 +553,13 @@ def demander_reinitialisation(request):
 
     lien = f"{settings.FRONTEND_URL}/reset-password?token={token}"
     try:
-        send_mail(
-            subject='GazAlert CI — Réinitialisation de mot de passe',
-            message=f'Bonjour {user.nom},\n\nCliquez sur ce lien pour réinitialiser votre mot de passe :\n{lien}\n\nCe lien expire dans 15 minutes.\n\nSi vous n\'avez pas demandé cette réinitialisation, ignorez cet email.\n\nL\'équipe GazAlert CI',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
+        resend.api_key = settings.RESEND_API_KEY
+        resend.Emails.send({
+            "from": "GazAlert CI <onboarding@resend.dev>",
+            "to": [user.email],
+            "subject": "GazAlert CI — Réinitialisation de mot de passe",
+            "html": f"<p>Bonjour {user.nom},</p><p>Cliquez sur ce lien pour réinitialiser votre mot de passe :<br><a href='{lien}'>{lien}</a></p><p>Ce lien expire dans 15 minutes.</p><p>Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.</p><p>L'équipe GazAlert CI</p>",
+        })
     except Exception:
         pass
 
