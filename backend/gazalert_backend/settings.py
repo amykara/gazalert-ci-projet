@@ -120,6 +120,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://10.232.115.176:8080",
     "http://172.30.80.176:8080",
     "http://192.168.126.1:8080",
+    "https://gazalert-ci-projet-lls9u9t42-gaz-alert.vercel.app",
 ]
 CORS_ALLOW_CREDENTIALS = True
 
