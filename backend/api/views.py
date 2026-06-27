@@ -497,8 +497,8 @@ def envoyer_verification_email(request):
             fail_silently=False,
         )
         return Response({'message': 'Email envoyé avec succès.'})
-    except Exception:
-        return Response({'detail': 'Erreur lors de l\'envoi de l\'email. Veuillez réessayer.'}, status=500)
+    except Exception as e:
+        return Response({'detail': f'Erreur lors de l\'envoi de l\'email: {str(e)}'}, status=500)
 
 
 # ─── VÉRIFIER EMAIL ───────────────────────────────────────────────────────────
