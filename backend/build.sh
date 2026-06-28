@@ -18,14 +18,19 @@ password = os.environ.get('DJANGO_SUPERUSER_PASSWORD')
 if not email or not password:
     print('Variables superutilisateur non configurees, creation ignoree.')
 else:
-    user = User.objects.filter(email=email).first()
-    if user:
-        user.is_staff = True
-        user.is_superuser = True
-        user.set_password(password)
-        user.save()
-        print('Superutilisateur mis a jour.')
-    else:
-        User.objects.create_superuser(email=email, nom_utilisateur=nom_utilisateur, password=password, nom=nom)
-        print('Superutilisateur cree.')
+    try:
+        user = User.objects.filter(email=email).first() or User.objects.filter(nom_utilisateur=nom_utilisateur).first()
+        if user:
+            user.email = email
+            user.nom_utilisateur = nom_utilisateur
+            user.is_staff = True
+            user.is_superuser = True
+            user.set_password(password)
+            user.save()
+            print('Superutilisateur mis a jour.')
+        else:
+            User.objects.create_superuser(email=email, nom_utilisateur=nom_utilisateur, password=password, nom=nom)
+            print('Superutilisateur cree.')
+    except Exception as e:
+        print(f'Avertissement superutilisateur: {e}')
 "
