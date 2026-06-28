@@ -21,3 +21,12 @@ if email and password and not User.objects.filter(email=email).exists():
 else:
     print('Superutilisateur deja existant ou variables manquantes.')
 "
+
+python manage.py shell -c "
+from django.contrib.auth import get_user_model
+User = get_user_model()
+print('=== SUPERUSERS EXISTANTS ===')
+for u in User.objects.filter(is_superuser=True):
+    print(f'Email: {u.email}, Nom utilisateur: {u.nom_utilisateur}')
+print('=== FIN ===')
+"
