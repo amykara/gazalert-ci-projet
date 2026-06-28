@@ -497,8 +497,8 @@ def envoyer_verification_email(request):
             "html": f"<p>Bonjour {request.user.nom},</p><p>Cliquez sur ce lien pour vérifier votre compte :<br><a href='{lien}'>{lien}</a></p><p>Ce lien expire dans 24 heures.</p><p>L'équipe GazAlert CI</p>",
         })
         return Response({'message': 'Email envoyé avec succès.'})
-    except Exception as e:
-        return Response({'detail': f'Erreur lors de l\'envoi de l\'email: {str(e)}'}, status=500)
+    except Exception:
+        return Response({'detail': 'Erreur lors de l\'envoi de l\'email. Veuillez réessayer.'}, status=500)
 
 
 # ─── VÉRIFIER EMAIL ───────────────────────────────────────────────────────────
