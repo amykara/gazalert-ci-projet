@@ -29,14 +29,15 @@ class FoyerStatutAppareilFilter(admin.SimpleListFilter):
 
 @admin.register(Utilisateur)
 class UtilisateurAdmin(UserAdmin):
-    list_display = ('email', 'nom', 'nom_utilisateur', 'telephone', 'est_actif', 'date_inscription')
-    list_filter = ('est_actif', 'is_staff')
+    list_display = ('email', 'nom', 'nom_utilisateur', 'telephone', 'est_actif', 'is_verified', 'date_inscription')
+    list_filter = ('est_actif', 'is_staff', 'is_verified')
     search_fields = ('email', 'nom', 'nom_utilisateur')
     ordering = ('-date_inscription',)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Informations', {'fields': ('nom', 'nom_utilisateur', 'telephone')}),
         ('Permissions', {'fields': ('est_actif', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Vérification', {'fields': ('is_verified',)}),
     )
     add_fieldsets = (
         (None, {
