@@ -19,12 +19,19 @@ email = os.environ.get('DJANGO_SUPERUSER_EMAIL')
 nom_utilisateur = os.environ.get('DJANGO_SUPERUSER_USERNAME')
 nom = os.environ.get('DJANGO_SUPERUSER_NOM', 'Admin')
 password = os.environ.get('DJANGO_SUPERUSER_PASSWORD')
-print(f'DEBUG python: email={email}, password_set={bool(password)}')
-if email and password and not User.objects.filter(email=email).exists():
-    User.objects.create_superuser(email=email, nom_utilisateur=nom_utilisateur, password=password, nom=nom)
-    print('Superutilisateur cree.')
+if not email or not password:
+    print('Variables manquantes.')
 else:
-    print('Superutilisateur deja existant ou variables manquantes.')
+    user = User.objects.filter(email=email).first()
+    if user:
+        user.is_staff = True
+        user.is_superuser = True
+        user.set_password(password)
+        user.save()
+        print(f'Utilisateur existant promu superutilisateur: {email}')
+    else:
+        User.objects.create_superuser(email=email, nom_utilisateur=nom_utilisateur, password=password, nom=nom)
+        print(f'Superutilisateur cree: {email}')
 "
 
 python manage.py shell -c "
