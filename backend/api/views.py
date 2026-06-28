@@ -47,11 +47,13 @@ def inscription(request):
 
     data = serializer.validated_data #si les données sont valides, on les récupère à partir du serializer
 
-    # Vérifier que email et nom_utilisateur sont uniques
+    # Vérifier que email, nom_utilisateur et téléphone sont uniques
     if Utilisateur.objects.filter(email=data['email']).exists():
         return Response({'email': 'Cet email est déjà utilisé.'}, status=400)
     if Utilisateur.objects.filter(nom_utilisateur=data['nom_utilisateur']).exists():
         return Response({'nom_utilisateur': 'Ce nom d\'utilisateur est déjà pris.'}, status=400)
+    if Utilisateur.objects.filter(telephone=data['telephone']).exists():
+        return Response({'telephone': 'Ce numéro de téléphone est déjà utilisé.'}, status=400)
 
     # Créer l'utilisateur
     user = Utilisateur.objects.create_user(
