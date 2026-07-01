@@ -299,7 +299,9 @@ def mise_a_jour_appareil(request):
 
         return Response({
             'message': 'Mis à jour.',
-            'adresse_repere': foyer.adresse_repere,
+            'adresse_repere': foyer.adresse_repere or '',
+            'latitude': str(foyer.latitude) if foyer.latitude else '',
+            'longitude': str(foyer.longitude) if foyer.longitude else '',
         })
     except Appareil.DoesNotExist:
         return Response({'detail': 'Token invalide.'}, status=403)

@@ -118,9 +118,7 @@ function Dashboard() {
 
     chargerDonnees();
 
-    let compteurInactivite = 0;
-    const interval = setInterval(async () => {
-      compteurInactivite++;
+    const rafraichirDonnees = async () => {
       try {
         const [appareilData, alertesData] = await Promise.all([
           api.getStatutAppareil(),
@@ -134,15 +132,12 @@ function Dashboard() {
         setAlertes(alertesData);
         if (alertesData.length > 0) setDerniereAlerte(alertesData[0]);
 
-        // Taux de résolution
         const total = alertesData.length;
         const resolues = alertesData.filter((a: any) => a.est_resolue).length;
         setTauxResolution(total > 0 ? Math.round((resolues / total) * 100) : 0);
 
-        // Statut préchauffage
         setPrechauffage(appareilData.statut === 'prechauffage');
 
-        // Hors ligne depuis X min
         if (appareilData.statut === 'hors_ligne' && appareilData.derniere_connexion) {
           const diff = Math.floor((Date.now() - new Date(appareilData.derniere_connexion).getTime()) / 60000);
           setHorsLigneDepuis(diff);
@@ -150,7 +145,6 @@ function Dashboard() {
           setHorsLigneDepuis(null);
         }
 
-        // Titre d'onglet dynamique
         if (appareilData.statut === 'alerte_critique') {
           document.title = `🚨 ALERTE — ${valeur} ppm — GazAlert CI`;
         } else if (appareilData.statut === 'alerte_moderee') {
@@ -161,8 +155,6 @@ function Dashboard() {
           document.title = `✅ Normal — ${valeur} ppm — GazAlert CI`;
         }
 
-
-        // Tendance (hausse / baisse)
         if (prevGasValueRef.current !== null) {
           const delta = valeur - prevGasValueRef.current;
           setDeltaPpm(Math.abs(delta));
@@ -172,26 +164,35 @@ function Dashboard() {
         }
         prevGasValueRef.current = valeur;
 
-        // Déclencher alertes si statut change
         if (dernierStatutRef.current !== appareilData.statut) {
           declencherAlertes(appareilData.statut);
           dernierStatutRef.current = appareilData.statut;
         }
-
       } catch {
         setAppareil((prev: any) => prev ? { ...prev, statut: 'hors_ligne' } : null);
       }
+    };
 
+    let compteurInactivite = 0;
+    const interval = setInterval(async () => {
+      compteurInactivite++;
+      await rafraichirDonnees();
       if (compteurInactivite >= 15) {
         compteurInactivite = 0;
-        try {
-          await api.verifierInactivite();
-        } catch {}
+        try { await api.verifierInactivite(); } catch {}
       }
     }, 2000);
 
+    // Rafraîchissement immédiat quand l'onglet redevient visible
+    // (le navigateur suspend les setInterval en arrière-plan)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') rafraichirDonnees();
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       document.title = "Tableau de bord — GazAlert CI";
     };
   }, []);
