@@ -1,0 +1,102 @@
+{% extends "admin/base_site.html" %}
+
+{% block title %}Carte des foyers — GazAlert CI{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Accueil</a> › Carte des foyers
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Carte des foyers</h1>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #map {
+        height: 580px;
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        margin-bottom: 12px;
+    }
+    .legende {
+        background: #fff;
+        padding: 12px 18px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        display: inline-flex;
+        gap: 24px;
+        font-size: 13px;
+    }
+    .legende-point {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 6px;
+        vertical-align: middle;
+    }
+</style>
+
+<div id="map"></div>
+
+<div class="legende">
+    <span><span class="legende-point" style="background:#22c55e;"></span>Normal</span>
+    <span><span class="legende-point" style="background:#f97316;"></span>Alerte modérée</span>
+    <span><span class="legende-point" style="background:#ef4444;"></span>Alerte critique</span>
+    <span><span class="legende-point" style="background:#9ca3af;"></span>Hors ligne</span>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+    const markers = {{ markers_json|safe }};
+    const couleurs = {
+        'normal': '#22c55e',
+        'alerte_moderee': '#f97316',
+        'alerte_critique': '#ef4444',
+        'hors_ligne': '#9ca3af'
+    };
+    const labels = {
+        'normal': 'Normal',
+        'alerte_moderee': 'Alerte modérée',
+        'alerte_critique': 'Alerte critique',
+        'hors_ligne': 'Hors ligne'
+    };
+
+    // Centre par défaut : Abidjan
+    const map = L.map('map').setView([5.3545, -4.0027], 11);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    if (markers.length > 0) {
+        const bounds = [];
+        markers.forEach(function (m) {
+            const couleur = couleurs[m.statut] || '#9ca3af';
+            const label = labels[m.statut] || m.statut;
+            L.circleMarker([m.lat, m.lon], {
+                radius: 11,
+                fillColor: couleur,
+                color: '#fff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.9,
+            }).bindPopup(
+                '<strong style="font-size:14px;">' + m.nom + '</strong><br>' +
+                (m.adresse ? '<span style="color:#6b7280;">' + m.adresse + '</span><br>' : '') +
+                '<span style="color:' + couleur + '; font-weight:600;">● ' + label + '</span>'
+            ).addTo(map);
+            bounds.push([m.lat, m.lon]);
+        });
+        if (bounds.length > 1) {
+            map.fitBounds(bounds, { padding: [40, 40] });
+        } else {
+            map.setView(bounds[0], 14);
+        }
+    }
+})();
+</script>
+{% endblock %}

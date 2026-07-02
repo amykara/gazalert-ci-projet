@@ -1,0 +1,164 @@
+{% extends "admin/base_site.html" %}
+
+{% block title %}Statistiques des alertes — GazAlert CI{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Accueil</a> › Statistiques des alertes
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Statistiques des alertes</h1>
+
+<style>
+    .stat-cards {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    .stat-card {
+        background: #fff;
+        padding: 16px 24px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        min-width: 150px;
+    }
+    .stat-card .valeur {
+        font-size: 30px;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+    .stat-card .libelle {
+        color: #6b7280;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+    .filtre-form {
+        background: #fff;
+        padding: 16px 20px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        display: flex;
+        gap: 16px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+    .filtre-form label {
+        display: block;
+        font-size: 12px;
+        color: #6b7280;
+        margin-bottom: 4px;
+    }
+    .filtre-form input[type="date"] {
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+    .filtre-form button {
+        background: #417690;
+        color: #fff;
+        border: none;
+        padding: 7px 18px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    .filtre-form button:hover { background: #2c5364; }
+    .graphique-card {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+</style>
+
+<!-- Résumé -->
+<div class="stat-cards">
+    <div class="stat-card">
+        <div class="valeur" style="color:#ef4444;">{{ total }}</div>
+        <div class="libelle">Alertes sur la période</div>
+    </div>
+    <div class="stat-card">
+        <div class="valeur" style="color:#22c55e;">{{ taux_resolution }}%</div>
+        <div class="libelle">Taux de résolution</div>
+    </div>
+</div>
+
+<!-- Filtre de période -->
+<form method="get" class="filtre-form">
+    <div>
+        <label for="date_debut">Date début</label>
+        <input type="date" id="date_debut" name="date_debut" value="{{ date_debut }}">
+    </div>
+    <div>
+        <label for="date_fin">Date fin</label>
+        <input type="date" id="date_fin" name="date_fin" value="{{ date_fin }}">
+    </div>
+    <button type="submit">Filtrer</button>
+</form>
+
+<!-- Graphique -->
+<div class="graphique-card">
+    <canvas id="alertesChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    const jours = {{ jours_json|safe }};
+    const moderees = {{ moderees_json|safe }};
+    const critiques = {{ critiques_json|safe }};
+
+    const labels = jours.map(function (j) {
+        const d = new Date(j + 'T00:00:00');
+        return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+    });
+
+    new Chart(document.getElementById('alertesChart'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Alerte modérée',
+                    data: moderees,
+                    backgroundColor: 'rgba(249, 115, 22, 0.75)',
+                    borderColor: '#f97316',
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Alerte critique',
+                    data: critiques,
+                    backgroundColor: 'rgba(239, 68, 68, 0.75)',
+                    borderColor: '#ef4444',
+                    borderWidth: 1,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                title: {
+                    display: true,
+                    text: 'Nombre d\'alertes par jour',
+                    font: { size: 14 }
+                }
+            },
+            scales: {
+                x: { stacked: true },
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+})();
+</script>
+{% endblock %}

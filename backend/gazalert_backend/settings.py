@@ -8,6 +8,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-changez-cette-cle-en-
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda v: [s.strip() for s in v.split(',')])
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -20,6 +21,58 @@ INSTALLED_APPS = [
     'core',
     'api',
 ]
+
+JAZZMIN_SETTINGS = {
+    "site_title": "GazAlert CI Admin",
+    "site_header": "GazAlert CI",
+    "site_brand": "GazAlert CI",
+    "welcome_sign": "Bienvenue sur l'administration GazAlert CI",
+    "copyright": "GazAlert CI",
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "icons": {
+        "core": "fas fa-shield-alt",
+        "core.utilisateur": "fas fa-user",
+        "core.foyer": "fas fa-home",
+        "core.appareil": "fas fa-microchip",
+        "core.alerte": "fas fa-exclamation-triangle",
+        "core.contact": "fas fa-address-book",
+        "core.role": "fas fa-shield-alt",
+        "core.membrefamille": "fas fa-users",
+        "core.notification": "fas fa-bell",
+        "core.conseilsecurite": "fas fa-info-circle",
+        "core.invitationfoyer": "fas fa-envelope",
+        "auth": "fas fa-users-cog",
+    },
+    "topmenu_links": [
+        {"name": "Tableau de bord", "url": "admin:index"},
+        {"name": "Carte des foyers", "url": "admin_carte_foyers", "icon": "fas fa-map-marked-alt"},
+        {"name": "Statistiques alertes", "url": "admin_statistiques_alertes", "icon": "fas fa-chart-bar"},
+    ],
+    "custom_links": {
+        "core": [
+            {
+                "name": "Carte des foyers",
+                "url": "admin_carte_foyers",
+                "icon": "fas fa-map-marked-alt",
+            },
+            {
+                "name": "Statistiques alertes",
+                "url": "admin_statistiques_alertes",
+                "icon": "fas fa-chart-bar",
+            },
+        ]
+    },
+    "order_with_respect_to": [
+        "core",
+        "core.foyer",
+        "core.appareil",
+        "core.alerte",
+        "core.contact",
+        "core.utilisateur",
+        "core.membrefamille",
+    ],
+}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
