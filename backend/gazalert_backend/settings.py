@@ -72,6 +72,12 @@ JAZZMIN_SETTINGS = {
         "core.utilisateur",
         "core.membrefamille",
     ],
+    "custom_css": "css/admin-custom.css",
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "darkly",
+    "dark_mode_theme": "darkly",
 }
 
 MIDDLEWARE = [

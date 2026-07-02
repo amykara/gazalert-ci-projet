@@ -1,0 +1,23 @@
+{% extends 'admin/base.html' %}
+
+{% block extrahead %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var logoLink = document.getElementById('jazzy-logo');
+    if (logoLink) {
+        logoLink.innerHTML = [
+            '<div class="logo-wrap">',
+            '  <div class="logo-icon">',
+            '    <i class="fas fa-fire" style="color:white; font-size:16px;"></i>',
+            '  </div>',
+            '  <div>',
+            '    <div class="logo-text-main">Gaz<span>Alert</span></div>',
+            '    <div class="logo-text-sub">Côte d\'Ivoire</div>',
+            '  </div>',
+            '</div>'
+        ].join('');
+    }
+});
+</script>
+{% endblock %}
