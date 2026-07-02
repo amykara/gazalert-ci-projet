@@ -7,6 +7,11 @@ python manage.py migrate
 python manage.py loaddata core/fixtures/roles.json
 python manage.py loaddata core/fixtures/conseils.json
 
+if [ "$SEED_DEMO_DATA" = "true" ]; then
+    echo "SEED_DEMO_DATA=true détecté — génération des données démo..."
+    python manage.py seed_demo_data
+fi
+
 python manage.py shell -c "
 from django.contrib.auth import get_user_model
 import os

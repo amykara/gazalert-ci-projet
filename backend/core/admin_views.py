@@ -6,7 +6,7 @@ from django.db.models.functions import TruncDate
 from django.db.models import Count
 from .models import Foyer, Alerte, Appareil, Notification
 
-SEUIL_HORS_LIGNE = 60  # secondes
+SEUIL_HORS_LIGNE = 86400  # secondes — seuil admin (vue d'ensemble 24h)
 
 MOIS_FR = {
     1: 'janvier', 2: 'février', 3: 'mars', 4: 'avril',
