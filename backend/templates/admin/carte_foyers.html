@@ -1,93 +1,129 @@
-{% extends "admin/base_site.html" %}
+{% extends "admin/_layout_dashboard.html" %}
 
-{% block title %}Carte des foyers — GazAlert CI{% endblock %}
+{% block title %}Carte des foyers{% endblock %}
+{% block breadcrumb_current %}Carte des foyers{% endblock %}
 
-{% block breadcrumbs %}
-<div class="breadcrumbs">
-    <a href="{% url 'admin:index' %}">Accueil</a> › Carte des foyers
-</div>
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 {% endblock %}
 
 {% block content %}
-<h1>Carte des foyers</h1>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<style>
-    #map {
-        height: 580px;
-        width: 100%;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        margin-bottom: 12px;
-    }
-    .legende {
-        background: #fff;
-        padding: 12px 18px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        display: inline-flex;
-        gap: 24px;
-        font-size: 13px;
-    }
-    .legende-point {
-        display: inline-block;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        margin-right: 6px;
-        vertical-align: middle;
-    }
-</style>
-
-<div id="map"></div>
-
-<div class="legende">
-    <span><span class="legende-point" style="background:#22c55e;"></span>Normal</span>
-    <span><span class="legende-point" style="background:#f97316;"></span>Alerte modérée</span>
-    <span><span class="legende-point" style="background:#ef4444;"></span>Alerte critique</span>
-    <span><span class="legende-point" style="background:#9ca3af;"></span>Hors ligne</span>
+<!-- Page title -->
+<div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px;">
+    <div>
+        <h1 style="font-size:21px;font-weight:700;color:#111827;margin:0;">Carte des foyers</h1>
+        <p style="font-size:12.5px;color:#6b7280;margin:4px 0 0;">Localisation et statut des appareils enregistrés</p>
+    </div>
+    <span style="font-size:12px;color:#9ca3af;align-self:center;">{{ today_str }}</span>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Summary cards -->
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;">
+
+    <!-- Foyers géolocalisés -->
+    <div style="background:white;border-radius:12px;border:1px solid #f1f5f9;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+            <div style="width:38px;height:38px;border-radius:10px;background:#eff6ff;display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-map-marker-alt" style="color:#3b82f6;font-size:15px;"></i>
+            </div>
+            <span style="background:#eff6ff;color:#1d4ed8;font-size:10.5px;font-weight:600;padding:4px 9px;border-radius:20px;">
+                géolocalisés
+            </span>
+        </div>
+        <div style="font-size:28px;font-weight:700;color:#111827;line-height:1;">{{ nb_total }}</div>
+        <div style="font-size:12.5px;color:#6b7280;margin-top:4px;">Foyers sur la carte</div>
+    </div>
+
+    <!-- En alerte -->
+    <div style="background:white;border-radius:12px;border:1px solid #f1f5f9;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+            <div style="width:38px;height:38px;border-radius:10px;background:#fff7ed;display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-exclamation-triangle" style="color:#f97316;font-size:15px;"></i>
+            </div>
+            <span style="background:#fff7ed;color:#ea580c;font-size:10.5px;font-weight:600;padding:4px 9px;border-radius:20px;">
+                actuel
+            </span>
+        </div>
+        <div style="font-size:28px;font-weight:700;color:#111827;line-height:1;">{{ nb_en_alerte }}</div>
+        <div style="font-size:12.5px;color:#6b7280;margin-top:4px;">Foyers en alerte</div>
+    </div>
+
+    <!-- Hors ligne -->
+    <div style="background:white;border-radius:12px;border:1px solid #f1f5f9;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+            <div style="width:38px;height:38px;border-radius:10px;background:#f9fafb;display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-wifi" style="color:#9ca3af;font-size:15px;"></i>
+            </div>
+            <span style="background:#f3f4f6;color:#6b7280;font-size:10.5px;font-weight:600;padding:4px 9px;border-radius:20px;">
+                hors ligne
+            </span>
+        </div>
+        <div style="font-size:28px;font-weight:700;color:#111827;line-height:1;">{{ nb_hors_ligne }}</div>
+        <div style="font-size:12.5px;color:#6b7280;margin-top:4px;">Appareils hors ligne</div>
+    </div>
+</div>
+
+<!-- Map container -->
+<div style="background:white;border-radius:12px;border:1px solid #f1f5f9;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05);margin-bottom:14px;">
+    <div id="map" style="height:480px;width:100%;"></div>
+</div>
+
+<!-- Legend -->
+<div style="background:white;border-radius:12px;border:1px solid #f1f5f9;padding:14px 18px;box-shadow:0 1px 3px rgba(0,0,0,0.05);display:inline-flex;gap:24px;flex-wrap:wrap;">
+    <span style="display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:#374151;">
+        <span style="width:11px;height:11px;border-radius:50%;background:#22c55e;display:inline-block;flex-shrink:0;"></span>Normal
+    </span>
+    <span style="display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:#374151;">
+        <span style="width:11px;height:11px;border-radius:50%;background:#f97316;display:inline-block;flex-shrink:0;"></span>Alerte modérée
+    </span>
+    <span style="display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:#374151;">
+        <span style="width:11px;height:11px;border-radius:50%;background:#ef4444;display:inline-block;flex-shrink:0;"></span>Alerte critique
+    </span>
+    <span style="display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:#374151;">
+        <span style="width:11px;height:11px;border-radius:50%;background:#9ca3af;display:inline-block;flex-shrink:0;"></span>Hors ligne
+    </span>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
 <script>
 (function () {
     const markers = {{ markers_json|safe }};
     const couleurs = {
-        'normal': '#22c55e',
-        'alerte_moderee': '#f97316',
+        'normal':          '#22c55e',
+        'prechauffage':    '#facc15',
+        'alerte_moderee':  '#f97316',
         'alerte_critique': '#ef4444',
-        'hors_ligne': '#9ca3af'
+        'hors_ligne':      '#9ca3af',
     };
     const labels = {
-        'normal': 'Normal',
-        'alerte_moderee': 'Alerte modérée',
+        'normal':          'Normal',
+        'prechauffage':    'Préchauffage',
+        'alerte_moderee':  'Alerte modérée',
         'alerte_critique': 'Alerte critique',
-        'hors_ligne': 'Hors ligne'
+        'hors_ligne':      'Hors ligne',
     };
 
-    // Centre par défaut : Abidjan
     const map = L.map('map').setView([5.3545, -4.0027], 11);
-
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
     if (markers.length > 0) {
         const bounds = [];
         markers.forEach(function (m) {
             const couleur = couleurs[m.statut] || '#9ca3af';
-            const label = labels[m.statut] || m.statut;
+            const label   = labels[m.statut]   || m.statut;
             L.circleMarker([m.lat, m.lon], {
-                radius: 11,
-                fillColor: couleur,
-                color: '#fff',
-                weight: 2,
-                opacity: 1,
-                fillOpacity: 0.9,
+                radius: 11, fillColor: couleur, color: '#fff',
+                weight: 2, opacity: 1, fillOpacity: 0.9,
             }).bindPopup(
                 '<strong style="font-size:14px;">' + m.nom + '</strong><br>' +
                 (m.adresse ? '<span style="color:#6b7280;">' + m.adresse + '</span><br>' : '') +
-                '<span style="color:' + couleur + '; font-weight:600;">● ' + label + '</span>'
+                '<span style="color:' + couleur + ';font-weight:600;">● ' + label + '</span>'
             ).addTo(map);
             bounds.push([m.lat, m.lon]);
         });

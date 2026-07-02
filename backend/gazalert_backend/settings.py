@@ -76,8 +76,8 @@ JAZZMIN_SETTINGS = {
 }
 
 JAZZMIN_UI_TWEAKS = {
-    "theme": "darkly",
-    "dark_mode_theme": "darkly",
+    "theme": "flatly",
+    "default_theme_mode": "light",
 }
 
 MIDDLEWARE = [

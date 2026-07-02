@@ -1,112 +1,110 @@
-{% extends "admin/base_site.html" %}
+{% extends "admin/_layout_dashboard.html" %}
 
-{% block title %}Statistiques des alertes — GazAlert CI{% endblock %}
+{% block title %}Statistiques des alertes{% endblock %}
+{% block breadcrumb_current %}Statistiques des alertes{% endblock %}
 
-{% block breadcrumbs %}
-<div class="breadcrumbs">
-    <a href="{% url 'admin:index' %}">Accueil</a> › Statistiques des alertes
-</div>
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 {% endblock %}
 
 {% block content %}
-<h1>Statistiques des alertes</h1>
 
-<style>
-    .stat-cards {
-        display: flex;
-        gap: 16px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-    }
-    .stat-card {
-        background: #fff;
-        padding: 16px 24px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        min-width: 150px;
-    }
-    .stat-card .valeur {
-        font-size: 30px;
-        font-weight: 700;
-        line-height: 1.2;
-    }
-    .stat-card .libelle {
-        color: #6b7280;
-        font-size: 12px;
-        margin-top: 4px;
-    }
-    .filtre-form {
-        background: #fff;
-        padding: 16px 20px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        display: flex;
-        gap: 16px;
-        align-items: flex-end;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
-    }
-    .filtre-form label {
-        display: block;
-        font-size: 12px;
-        color: #6b7280;
-        margin-bottom: 4px;
-    }
-    .filtre-form input[type="date"] {
-        border: 1px solid #d1d5db;
-        border-radius: 4px;
-        padding: 6px 10px;
-        font-size: 14px;
-    }
-    .filtre-form button {
-        background: #417690;
-        color: #fff;
-        border: none;
-        padding: 7px 18px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-    }
-    .filtre-form button:hover { background: #2c5364; }
-    .graphique-card {
-        background: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-    }
-</style>
-
-<!-- Résumé -->
-<div class="stat-cards">
-    <div class="stat-card">
-        <div class="valeur" style="color:#ef4444;">{{ total }}</div>
-        <div class="libelle">Alertes sur la période</div>
+<!-- Page title -->
+<div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px;">
+    <div>
+        <h1 style="font-size:21px;font-weight:700;color:#111827;margin:0;">Statistiques des alertes</h1>
+        <p style="font-size:12.5px;color:#6b7280;margin:4px 0 0;">
+            Analyse sur la période {{ date_debut }} — {{ date_fin }}
+        </p>
     </div>
-    <div class="stat-card">
-        <div class="valeur" style="color:#22c55e;">{{ taux_resolution }}%</div>
-        <div class="libelle">Taux de résolution</div>
+</div>
+
+<!-- Stat cards -->
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:20px;">
+
+    <!-- Total alertes -->
+    <div style="background:white;border-radius:12px;border:1px solid #f1f5f9;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+            <div style="width:38px;height:38px;border-radius:10px;background:#fff7ed;display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-bell" style="color:#f97316;font-size:15px;"></i>
+            </div>
+            <span style="background:#fff7ed;color:#ea580c;font-size:10.5px;font-weight:600;padding:4px 9px;border-radius:20px;">
+                sur la période
+            </span>
+        </div>
+        <div style="font-size:28px;font-weight:700;color:#111827;line-height:1;">{{ total }}</div>
+        <div style="font-size:12.5px;color:#6b7280;margin-top:4px;">Alertes détectées</div>
+    </div>
+
+    <!-- Taux de résolution -->
+    <div style="background:white;border-radius:12px;border:1px solid #f1f5f9;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+            <div style="width:38px;height:38px;border-radius:10px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-check-circle" style="color:#22c55e;font-size:15px;"></i>
+            </div>
+            <span style="background:#f0fdf4;color:#15803d;font-size:10.5px;font-weight:600;padding:4px 9px;border-radius:20px;">
+                résolues
+            </span>
+        </div>
+        <div style="font-size:28px;font-weight:700;color:#111827;line-height:1;">{{ taux_resolution }}%</div>
+        <div style="font-size:12.5px;color:#6b7280;margin-top:4px;">Taux de résolution</div>
     </div>
 </div>
 
 <!-- Filtre de période -->
-<form method="get" class="filtre-form">
-    <div>
-        <label for="date_debut">Date début</label>
-        <input type="date" id="date_debut" name="date_debut" value="{{ date_debut }}">
-    </div>
-    <div>
-        <label for="date_fin">Date fin</label>
-        <input type="date" id="date_fin" name="date_fin" value="{{ date_fin }}">
-    </div>
-    <button type="submit">Filtrer</button>
-</form>
+<div style="background:white;border-radius:12px;border:1px solid #f1f5f9;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.05);margin-bottom:18px;">
+    <div style="font-size:13.5px;font-weight:600;color:#111827;margin-bottom:12px;">Période d'analyse</div>
 
-<!-- Graphique -->
-<div class="graphique-card">
+    <!-- Preset period buttons -->
+    <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+        <button onclick="setPeriode(7)"
+                style="font-size:11.5px;font-weight:500;padding:5px 14px;border-radius:7px;border:none;cursor:pointer;background:#f3f4f6;color:#6b7280;transition:all 0.12s;"
+                onmouseover="this.style.background='#f97316';this.style.color='white'"
+                onmouseout="this.style.background='#f3f4f6';this.style.color='#6b7280'">
+            7 jours
+        </button>
+        <button onclick="setPeriode(30)"
+                style="font-size:11.5px;font-weight:500;padding:5px 14px;border-radius:7px;border:none;cursor:pointer;background:#f97316;color:white;transition:all 0.12s;">
+            30 jours
+        </button>
+        <button onclick="setPeriode(90)"
+                style="font-size:11.5px;font-weight:500;padding:5px 14px;border-radius:7px;border:none;cursor:pointer;background:#f3f4f6;color:#6b7280;transition:all 0.12s;"
+                onmouseover="this.style.background='#f97316';this.style.color='white'"
+                onmouseout="this.style.background='#f3f4f6';this.style.color='#6b7280'">
+            90 jours
+        </button>
+    </div>
+
+    <!-- Custom date range -->
+    <form id="filtre-form" method="get" style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;">
+        <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px;">Date début</label>
+            <input type="date" id="date_debut" name="date_debut" value="{{ date_debut }}"
+                   style="padding:7px 10px;font-size:12.5px;border:1px solid #e5e7eb;border-radius:8px;color:#374151;background:#f9fafb;outline:none;">
+        </div>
+        <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px;">Date fin</label>
+            <input type="date" id="date_fin" name="date_fin" value="{{ date_fin }}"
+                   style="padding:7px 10px;font-size:12.5px;border:1px solid #e5e7eb;border-radius:8px;color:#374151;background:#f9fafb;outline:none;">
+        </div>
+        <button type="submit"
+                style="padding:7px 18px;font-size:12.5px;font-weight:600;border:none;border-radius:8px;cursor:pointer;background:#f97316;color:white;transition:background 0.12s;"
+                onmouseover="this.style.background='#ea580c'" onmouseout="this.style.background='#f97316'">
+            <i class="fas fa-filter" style="margin-right:5px;"></i>Filtrer
+        </button>
+    </form>
+</div>
+
+<!-- Chart -->
+<div style="background:white;border-radius:12px;border:1px solid #f1f5f9;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+    <div style="font-size:13.5px;font-weight:600;color:#111827;margin-bottom:2px;">Alertes par jour</div>
+    <div style="font-size:11.5px;color:#9ca3af;margin-bottom:16px;">Répartition modérée / critique</div>
     <canvas id="alertesChart"></canvas>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block extra_scripts %}
 <script>
 (function () {
     const jours = {{ jours_json|safe }};
@@ -114,8 +112,8 @@
     const critiques = {{ critiques_json|safe }};
 
     const labels = jours.map(function (j) {
-        const d = new Date(j + 'T00:00:00');
-        return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+        var d = new Date(j + 'T00:00:00');
+        return ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2);
     });
 
     new Chart(document.getElementById('alertesChart'), {
@@ -124,41 +122,66 @@
             labels: labels,
             datasets: [
                 {
-                    label: 'Alerte modérée',
+                    label: 'Modérée',
                     data: moderees,
-                    backgroundColor: 'rgba(249, 115, 22, 0.75)',
-                    borderColor: '#f97316',
-                    borderWidth: 1,
+                    backgroundColor: 'rgba(249,115,22,0.75)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    borderSkipped: false,
                 },
                 {
-                    label: 'Alerte critique',
+                    label: 'Critique',
                     data: critiques,
-                    backgroundColor: 'rgba(239, 68, 68, 0.75)',
-                    borderColor: '#ef4444',
-                    borderWidth: 1,
+                    backgroundColor: 'rgba(239,68,68,0.75)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    borderSkipped: false,
                 }
             ]
         },
         options: {
             responsive: true,
+            interaction: { mode: 'index', intersect: false },
             plugins: {
-                legend: { position: 'top' },
-                title: {
-                    display: true,
-                    text: 'Nombre d\'alertes par jour',
-                    font: { size: 14 }
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        pointStyleWidth: 8,
+                        padding: 14,
+                        font: { size: 11.5 },
+                        color: '#6b7280',
+                    }
                 }
             },
             scales: {
-                x: { stacked: true },
+                x: {
+                    stacked: true,
+                    grid: { display: false },
+                    ticks: { font: { size: 11 }, color: '#9ca3af', maxTicksLimit: 16 }
+                },
                 y: {
                     stacked: true,
                     beginAtZero: true,
-                    ticks: { stepSize: 1 }
+                    grid: { color: '#f3f4f6' },
+                    ticks: { stepSize: 1, font: { size: 11 }, color: '#9ca3af' }
                 }
             }
         }
     });
+
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+    function toYMD(d) {
+        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    }
+    window.setPeriode = function(jours) {
+        var fin = new Date();
+        var debut = new Date();
+        debut.setDate(debut.getDate() - jours + 1);
+        document.getElementById('date_debut').value = toYMD(debut);
+        document.getElementById('date_fin').value   = toYMD(fin);
+        document.getElementById('filtre-form').submit();
+    };
 })();
 </script>
 {% endblock %}

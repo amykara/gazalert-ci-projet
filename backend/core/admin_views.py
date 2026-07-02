@@ -8,9 +8,30 @@ from .models import Foyer, Alerte, Appareil, Notification
 
 SEUIL_HORS_LIGNE = 60  # secondes
 
+MOIS_FR = {
+    1: 'janvier', 2: 'février', 3: 'mars', 4: 'avril',
+    5: 'mai', 6: 'juin', 7: 'juillet', 8: 'août',
+    9: 'septembre', 10: 'octobre', 11: 'novembre', 12: 'décembre',
+}
+
+
+def _temps_relatif(delta):
+    secs = int(delta.total_seconds())
+    if secs < 60:
+        return "à l'instant"
+    elif secs < 3600:
+        return f"il y a {secs // 60} min"
+    elif secs < 86400:
+        return f"il y a {secs // 3600} h"
+    else:
+        return f"il y a {delta.days} j"
+
 
 def carte_foyers(request):
-    seuil = timezone.now() - timedelta(seconds=SEUIL_HORS_LIGNE)
+    now = timezone.now()
+    today = now.date()
+    seuil = now - timedelta(seconds=SEUIL_HORS_LIGNE)
+
     foyers = Foyer.objects.filter(
         latitude__isnull=False,
         longitude__isnull=False,
@@ -35,9 +56,23 @@ def carte_foyers(request):
             'statut': statut,
         })
 
+    nb_total = len(markers)
+    nb_en_alerte = sum(1 for m in markers if m['statut'] in ('alerte_moderee', 'alerte_critique'))
+    nb_hors_ligne = sum(1 for m in markers if m['statut'] == 'hors_ligne')
+    nb_normal = nb_total - nb_en_alerte - nb_hors_ligne
+    alertes_actives = Alerte.objects.filter(est_resolue=False).count()
+    today_str = f"{today.day} {MOIS_FR[today.month]} {today.year}"
+
     return render(request, 'admin/carte_foyers.html', {
         'title': 'Carte des foyers',
         'markers_json': json.dumps(markers),
+        'nb_total': nb_total,
+        'nb_en_alerte': nb_en_alerte,
+        'nb_hors_ligne': nb_hors_ligne,
+        'nb_normal': nb_normal,
+        'alertes_actives': alertes_actives,
+        'today_str': today_str,
+        'active_page': 'carte',
     })
 
 
@@ -86,6 +121,7 @@ def statistiques_alertes(request):
     total = qs.count()
     resolues = qs.filter(est_resolue=True).count()
     taux_resolution = round(resolues / total * 100) if total > 0 else 0
+    alertes_actives = Alerte.objects.filter(est_resolue=False).count()
 
     return render(request, 'admin/statistiques_alertes.html', {
         'title': 'Statistiques des alertes',
@@ -96,26 +132,9 @@ def statistiques_alertes(request):
         'critiques_json': json.dumps([critiques[j] for j in jours]),
         'total': total,
         'taux_resolution': taux_resolution,
+        'alertes_actives': alertes_actives,
+        'active_page': 'stats',
     })
-
-
-MOIS_FR = {
-    1: 'janvier', 2: 'février', 3: 'mars', 4: 'avril',
-    5: 'mai', 6: 'juin', 7: 'juillet', 8: 'août',
-    9: 'septembre', 10: 'octobre', 11: 'novembre', 12: 'décembre',
-}
-
-
-def _temps_relatif(delta):
-    secs = int(delta.total_seconds())
-    if secs < 60:
-        return "à l'instant"
-    elif secs < 3600:
-        return f"il y a {secs // 60} min"
-    elif secs < 86400:
-        return f"il y a {secs // 3600} h"
-    else:
-        return f"il y a {delta.days} j"
 
 
 def tableau_de_bord(request):
@@ -218,4 +237,5 @@ def tableau_de_bord(request):
         'data_90j_json': json.dumps(_data_alertes(90)),
         'activites': activites,
         'today_str': today_str,
+        'active_page': 'dashboard',
     })
