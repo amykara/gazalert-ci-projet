@@ -71,7 +71,7 @@ def inscription(request):
         Appareil.objects.create(
             foyer=foyer,
             token=token_appareil,
-            statut='hors_ligne'
+            statut='normal'
         )
 
         # Envoyer email de vérification automatiquement
