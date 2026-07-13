@@ -14,15 +14,54 @@ export const setToken = (token: string) => {
   localStorage.setItem('token', token);
 };
 
+export const getRefreshToken = () => {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('refresh_token');
+};
+
+export const setRefreshToken = (token: string) => {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('refresh_token', token);
+};
+
 export const removeToken = () => {
   if (typeof window === 'undefined') return;
   localStorage.removeItem('token');
+  localStorage.removeItem('refresh_token');
 };
 export const isAuthenticated = () => !!getToken();
 
+// ─── RAFRAÎCHISSEMENT AUTOMATIQUE DE L'ACCESS TOKEN ──────────────────────────
+// Mutualise les rafraîchissements concurrents (plusieurs requêtes en 401 en même temps)
+let rafraichissementEnCours: Promise<string | null> | null = null;
+
+async function rafraichirToken(): Promise<string | null> {
+  const refresh = getRefreshToken();
+  if (!refresh) return null;
+
+  if (!rafraichissementEnCours) {
+    rafraichissementEnCours = fetch(`${BASE_URL}/auth/refresh/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh }),
+    })
+      .then(async (res) => {
+        if (!res.ok) return null;
+        const data = await res.json();
+        setToken(data.access);
+        if (data.refresh) setRefreshToken(data.refresh); // ROTATE_REFRESH_TOKENS=True côté backend
+        return data.access as string;
+      })
+      .catch(() => null)
+      .finally(() => {
+        rafraichissementEnCours = null;
+      });
+  }
+  return rafraichissementEnCours;
+}
+
 // ─── FONCTION DE BASE POUR LES REQUÊTES ──────────────────────────────────────
-async function request(endpoint: string, options: RequestInit = {}) {
-  const token = getToken();
+async function appelerApi(endpoint: string, options: RequestInit, token: string | null) {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
@@ -30,10 +69,21 @@ async function request(endpoint: string, options: RequestInit = {}) {
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  return fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
+}
+
+async function request(endpoint: string, options: RequestInit = {}) {
+  let response = await appelerApi(endpoint, options, getToken());
+
+  // Access token expiré : on tente un rafraîchissement puis on rejoue la requête une fois.
+  // On exclut /auth/login/ où un 401 signifie juste "identifiants invalides".
+  if (response.status === 401 && endpoint !== '/auth/login/' && getRefreshToken()) {
+    const nouveauToken = await rafraichirToken();
+    if (nouveauToken) {
+      response = await appelerApi(endpoint, options, nouveauToken);
+    }
+  }
+
   if (response.status === 204) return null;
   const data = await response.json();
   if (!response.ok) throw data;

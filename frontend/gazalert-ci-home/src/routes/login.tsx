@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { api, setToken } from "@/lib/api";
+import { api, setToken, setRefreshToken } from "@/lib/api";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Connexion — GazAlert CI" }] }),
@@ -37,6 +37,7 @@ export function LoginPage() {
     try {
       const data = await api.login(email, password);
       setToken(data.access);
+      setRefreshToken(data.refresh);
       toast.success("Connexion réussie !");
       navigate({ to: "/" });
     } catch (err: any) {
@@ -108,6 +109,7 @@ export function LoginPage() {
         try {
           const loginRes = await api.login(payload.email, payload.password);
           setToken(loginRes.access);
+          setRefreshToken(loginRes.refresh);
           navigate({ to: '/' });
         } catch {
           setMode("connexion");
