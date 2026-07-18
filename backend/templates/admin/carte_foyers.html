@@ -108,6 +108,7 @@
     };
 
     const map = L.map('map').setView([5.3545, -4.0027], 11);
+    map.attributionControl.setPrefix(false); // retire le "Leaflet" par défaut, garde uniquement l'attribution OSM (obligatoire)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);

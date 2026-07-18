@@ -16,6 +16,8 @@ export function AlerteMap({ lat, lon, niveau }: { lat: number; lon: number; nive
     }).setView([lat, lon], 14);
     mapRef.current = map;
 
+    map.attributionControl.setPrefix(false); // retire le "Leaflet" par défaut, garde uniquement l'attribution OSM (obligatoire)
+
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
