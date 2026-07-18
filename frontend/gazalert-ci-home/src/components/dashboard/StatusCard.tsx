@@ -1,13 +1,15 @@
 import { CheckCircle, SpinnerGap, Warning, Siren, WifiSlash } from "@phosphor-icons/react";import type { SystemState } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
-const config: Record<SystemState, { label: string; sub: string; color: string; bg: string; Icon: React.ElementType; pulse?: boolean }> = {
+const config: Record<SystemState, { label: string; sub: string; color: string; bg: string; Icon: React.ElementType; pulse?: boolean; glow?: number; halo?: number }> = {
   active: {
     label: "Système actif",
     sub: "Toutes les conditions sont normales",
-    color: "oklch(0.72 0.19 150)",
-    bg: "from-[oklch(0.72_0.19_150/0.2)] to-[oklch(0.72_0.19_150/0.05)]",
+    color: "oklch(0.6 0.15 150)",
+    bg: "from-[oklch(0.6_0.15_150/0.15)] to-[oklch(0.6_0.15_150/0.04)]",
     Icon: CheckCircle,
+    glow: 14,
+    halo: 0.2,
   },
   preheating: {
     label: "Préchauffage en cours",
@@ -52,8 +54,8 @@ export function StatusCard({ state }: { state: SystemState }) {
       )}
     >
       <div
-        className="absolute -right-10 -top-10 h-48 w-48 rounded-full blur-3xl opacity-40"
-        style={{ background: c.color }}
+        className="absolute -right-10 -top-10 h-48 w-48 rounded-full blur-3xl"
+        style={{ background: c.color, opacity: c.halo ?? 0.4 }}
       />
       <div className="relative flex items-center gap-5">
         <div
@@ -61,7 +63,7 @@ export function StatusCard({ state }: { state: SystemState }) {
             "h-16 w-16 rounded-2xl flex items-center justify-center shrink-0",
             c.pulse && "animate-pulse-alert"
           )}
-          style={{ background: c.color, boxShadow: `0 0 30px ${c.color}` }}
+          style={{ background: c.color, boxShadow: `0 0 ${c.glow ?? 30}px ${c.color}` }}
         >
           <Icon
             size={32}

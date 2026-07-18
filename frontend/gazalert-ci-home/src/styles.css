@@ -68,7 +68,7 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.7 0.2 38);
-  --success: oklch(0.72 0.19 150);
+  --success: oklch(0.6 0.15 150);
   --success-foreground: oklch(0.15 0.02 255);
   --warning: oklch(0.78 0.17 75);
   --gradient-hero: linear-gradient(135deg, oklch(0.18 0.04 255) 0%, oklch(0.23 0.05 250) 100%);
