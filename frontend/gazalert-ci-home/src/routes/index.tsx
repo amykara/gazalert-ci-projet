@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { GasGauge } from "@/components/dashboard/GasGauge";
 import { StatusCard } from "@/components/dashboard/StatusCard";
+import { AlerteMap } from "@/components/dashboard/AlerteMap";
 import { api, removeToken } from "@/lib/api";
 
 export const Route = createFileRoute("/")({
@@ -409,7 +410,6 @@ function Dashboard() {
           {derniereAlerte?.latitude && (() => {
             const lat = Number(derniereAlerte.latitude);
             const lon = Number(derniereAlerte.longitude);
-            const couleurPoint = derniereAlerte.niveau === "critique" ? "#ef4444" : "#f97316";
             return (
               <Card className="glass-card p-6 border-0 overflow-hidden">
                 <div className="flex items-center justify-between mb-4">
@@ -426,16 +426,8 @@ function Dashboard() {
                     Ouvrir <ArrowUpRight size={16} />
                   </Button>
                 </div>
-                <div className="relative h-56 rounded-xl overflow-hidden border border-border">
-                  <iframe
-                    title="Carte de la dernière alerte"
-                    className="w-full h-full"
-                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.02}%2C${lat - 0.015}%2C${lon + 0.02}%2C${lat + 0.015}&layer=mapnik&marker=${lat}%2C${lon}`}
-                  />
-                  <span
-                    className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white pointer-events-none"
-                    style={{ background: couleurPoint, boxShadow: `0 0 10px ${couleurPoint}` }}
-                  />
+                <div className="h-56 rounded-xl overflow-hidden border border-border">
+                  <AlerteMap lat={lat} lon={lon} niveau={derniereAlerte.niveau} />
                 </div>
               </Card>
             );
