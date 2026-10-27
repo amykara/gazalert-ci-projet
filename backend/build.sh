@@ -3,9 +3,8 @@ set -o errexit
 
 pip install -r requirements.txt
 python manage.py collectstatic --no-input
-python manage.py migrate
-python manage.py loaddata core/fixtures/roles.json
-python manage.py loaddata core/fixtures/conseils.json
+python manage.py migrate --no-input
+python manage.py createsuperuser --noinput || true
 
 if [ "$SEED_DEMO_DATA" = "true" ]; then
     echo "SEED_DEMO_DATA=true détecté — génération des données démo..."
